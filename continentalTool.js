@@ -1,12 +1,12 @@
 const fs = require('fs'); 
-//const csv = require('csv-reader');
 const csv = require('async-csv');
 var excel = require('excel4node');
 const path = require('path');
 
 class ContinentalTool{
     
-    constructor(folderDir,fileName,headers){
+    constructor(folderDir,fileName,headers,withFecha){
+        this.withFecha = withFecha;
         this.folderDir = folderDir;
         this.fileName = fileName;
         this.headers = headers;
@@ -43,7 +43,12 @@ class ContinentalTool{
         
         var newHeaders = ["historia","apellidos","nombres","genero","empresa","fecha_creacion","cod_perfil","comentario"];
         added.forEach(data => {
-            newHeaders.push(data,'fecha_muestra','fecha_resultado');
+            
+            if(this.withFecha){
+                newHeaders.push(data,'fecha_muestra','fecha_resultado');
+            }else{
+                newHeaders.push(data);
+            }
         });
     
         added = [];
@@ -64,8 +69,11 @@ class ContinentalTool{
     
                 const labIndex = newHeaders.indexOf(data.Examen);
                 row[labIndex] = data.Resultado;
-                row[labIndex+1] = data.FechaMuestra;
-                row[labIndex+2] = data.FechaResultado;
+                if(this.withFecha){
+                    row[labIndex+1] = data.FechaMuestra;
+                    row[labIndex+2] = data.FechaResultado;
+                }
+                
                 
                 added.push(data.Historia);
                 sanititizedData.push(row);
@@ -76,8 +84,10 @@ class ContinentalTool{
     
                 const labIndex = newHeaders.indexOf(data.Examen);
                 row[labIndex] = data.Resultado;
-                row[labIndex+1] = data.FechaMuestra;
-                row[labIndex+2] = data.FechaResultado;
+                if(this.withFecha){
+                    row[labIndex+1] = data.FechaMuestra;
+                    row[labIndex+2] = data.FechaResultado;
+                }
 
                 sanititizedData[indexRow]=row;
                 
@@ -143,10 +153,10 @@ class ContinentalTool{
 const folderName = 'Septiembre2019';
 const headers=["Historia","Apellidos","Nombres","Genero","Empresa","FechaCreacion","CodPerfil","Comentario","Examen","FechaMuestra","FechaResultado","Resultado"];
 
-const cardiovascular = new ContinentalTool(folderName,'cardiovascular',headers);
-const gestantes = new ContinentalTool(folderName,'gestantes',headers);
-const ninos = new ContinentalTool(folderName,'ninos',headers);
-const primer = new ContinentalTool(folderName,'primer',headers);
+const cardiovascular = new ContinentalTool(folderName,'cardiovascular',headers,false);
+const gestantes = new ContinentalTool(folderName,'gestantes',headers,false);
+const ninos = new ContinentalTool(folderName,'ninos',headers,false);
+const primer = new ContinentalTool(folderName,'primer',headers,false);
 
 cardiovascular.main();
 gestantes.main();
